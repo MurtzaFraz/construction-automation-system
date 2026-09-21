@@ -1,0 +1,375 @@
+{
+  "name": "Review & Follow-Up",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "id": "e85f2860-7ec0-449d-ac98-cb1fe655e7d0",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appUTPOUtHikFH9Gh",
+          "mode": "list",
+          "cachedResultName": "Construction CRM",
+          "cachedResultUrl": "https://airtable.com/appUTPOUtHikFH9Gh"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblkRLVblrPa5kd6E",
+          "mode": "list",
+          "cachedResultName": "Projects",
+          "cachedResultUrl": "https://airtable.com/appUTPOUtHikFH9Gh/tblkRLVblrPa5kd6E"
+        },
+        "filterByFormula": "AND(   {Overall Status} = \"Completed\",   {Review Request Sent} != TRUE() )",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [208, 0],
+      "id": "5b406835-2214-4bd4-a188-b4db2c435da1",
+      "name": "Search records"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.fields['Customer Email'] }}",
+        "subject": "How did we do with your project?",
+        "message": "=<div style=\"font-family: Arial, Helvetica, sans-serif; background-color:#f5f7fa; padding:40px 20px;\">   <div style=\"max-width:600px; margin:0 auto; background:#ffffff; border-radius:12px; overflow:hidden; box-shadow:0 2px 10px rgba(0,0,0,0.06);\">      <!-- Header -->     <div style=\"background:#1f2937; padding:28px 35px; text-align:center;\">       <h1 style=\"margin:0; color:#ffffff; font-size:24px; font-weight:600;\">         Construction company       </h1>       <p style=\"margin:8px 0 0; color:#d1d5db; font-size:14px;\">         Quality workmanship. Trusted service.       </p>     </div>      <!-- Body -->     <div style=\"padding:40px 35px; color:#374151;\">        <p style=\"font-size:16px; margin-top:0;\">         Hi <strong>{{ $json.fields[\"Customer Name\"] }}</strong>,       </p>        <p style=\"font-size:16px; line-height:1.7;\">         We hope you're enjoying the results of your recent project with us.       </p>        <p style=\"font-size:16px; line-height:1.7;\">         Thank you for trusting our team with your         <strong>{{ $json.fields[\"Project Description\"] }}</strong>.         We genuinely appreciate the opportunity to work with you.       </p>        <!-- Review Box -->       <div style=\"background:#f9fafb; border-left:4px solid #374151; padding:22px; margin:30px 0;\">         <h2 style=\"margin:0 0 10px; font-size:20px; color:#111827;\">           How did we do?         </h2>          <p style=\"margin:0; font-size:15px; line-height:1.7; color:#4b5563;\">           We'd love to hear about your experience. Your feedback helps us           continue improving our service and helps other homeowners feel           confident when choosing a contractor.         </p>       </div>        <!-- CTA -->       <div style=\"text-align:center; margin:35px 0;\">         <a href=\"https://example.com/review\"            style=\"display:inline-block; background:#1f2937; color:#ffffff; text-decoration:none; padding:15px 30px; border-radius:6px; font-size:15px; font-weight:bold;\">           ⭐ Leave Us a Review         </a>       </div>        <p style=\"font-size:15px; line-height:1.7;\">         It only takes a minute, and your feedback makes a real difference         to our team.       </p>        <p style=\"font-size:15px; line-height:1.7;\">         Thank you again for choosing Construction. We hope you're         enjoying your newly completed project!       </p>        <p style=\"font-size:15px; line-height:1.7; margin-bottom:0;\">         Warm regards,<br>         <strong>The Construction Team</strong>       </p>      </div>      <!-- Footer -->     <div style=\"background:#f9fafb; padding:20px 35px; text-align:center; border-top:1px solid #e5e7eb;\">       <p style=\"margin:0; color:#9ca3af; font-size:12px;\">         Thank you for choosing Construction.       </p>     </div>    </div> </div>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [416, 0],
+      "id": "65e8c61f-846c-4163-b93b-6dedda537db0",
+      "name": "Send a message",
+      "webhookId": "cc6cc669-abc5-4b33-9d01-c25fccd76d5d"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "value": "appUTPOUtHikFH9Gh",
+          "mode": "list",
+          "cachedResultName": "Construction CRM",
+          "cachedResultUrl": "https://airtable.com/appUTPOUtHikFH9Gh"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblkRLVblrPa5kd6E",
+          "mode": "list",
+          "cachedResultName": "Projects",
+          "cachedResultUrl": "https://airtable.com/appUTPOUtHikFH9Gh/tblkRLVblrPa5kd6E"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Review Request Sent": true,
+            "Follow-Up Sent": false,
+            "Review Request Sent At": "={{ $now }}",
+            "Review Status": "Requested",
+            "Project ID": "={{ $('Search records').item.json.fields['Project ID'] }}"
+          },
+          "matchingColumns": ["Project ID"],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Project ID",
+              "displayName": "Project ID",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Customer Name",
+              "displayName": "Customer Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Customer Email",
+              "displayName": "Customer Email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Customer Phone",
+              "displayName": "Customer Phone",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Project Address",
+              "displayName": "Project Address",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Project Description",
+              "displayName": "Project Description",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Start Date",
+              "displayName": "Start Date",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Expected Completion",
+              "displayName": "Expected Completion",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Project Manager",
+              "displayName": "Project Manager",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Overall Status",
+              "displayName": "Overall Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Scheduled",
+                  "value": "Scheduled"
+                },
+                {
+                  "name": "In Progress",
+                  "value": "In Progress"
+                },
+                {
+                  "name": "On Hold",
+                  "value": "On Hold"
+                },
+                {
+                  "name": "Completed",
+                  "value": "Completed"
+                },
+                {
+                  "name": "Delayed",
+                  "value": "Delayed"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Progress %",
+              "displayName": "Progress %",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Current Stage",
+              "displayName": "Current Stage",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Review Request Sent",
+              "displayName": "Review Request Sent",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Review Request Sent At",
+              "displayName": "Review Request Sent At",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Review Status",
+              "displayName": "Review Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Not Requested",
+                  "value": "Not Requested"
+                },
+                {
+                  "name": "Requested",
+                  "value": "Requested"
+                },
+                {
+                  "name": "Received",
+                  "value": "Received"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Follow-Up Sent",
+              "displayName": "Follow-Up Sent",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Follow-Up Sent At",
+              "displayName": "Follow-Up Sent At",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [624, 0],
+      "id": "93b84f95-7204-443f-a1ff-1ec8baa6d722",
+      "name": "Update record"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Search records",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search records": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "Update record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "c121ff0c-8a47-4669-908f-07aabe2f8239",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "7bb7faf08e93acc59441ecea2ef2e26ff954143c20925a5da08e6afc7457d344"
+  },
+  "nodeGroups": [],
+  "id": "UbhRbNLBMLhk5WwH",
+  "tags": []
+}
