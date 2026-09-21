@@ -1,0 +1,133 @@
+{
+  "name": "Construction Quote — Approval & Sending",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "authentication": "airtableTokenApi",
+        "baseId": {
+          "__rl": true,
+          "value": "appUTPOUtHikFH9Gh",
+          "mode": "id"
+        },
+        "tableId": {
+          "__rl": true,
+          "value": "tblWp1l3wUyWsfFLl",
+          "mode": "id"
+        },
+        "triggerField": "Approved",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.airtableTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "id": "f1538cd7-f73a-4507-bc2c-ee1506405e1e",
+      "name": "Airtable Trigger"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "f26fab0f-d2a7-461a-b356-695dfdf2b872",
+              "leftValue": "={{ $json.fields.Approved }}",
+              "rightValue": "is true",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [208, 0],
+      "id": "f188cf9a-f764-40f3-88f4-1793ef6710f2",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.fields['Customer Email'] }}",
+        "subject": "=Your Quote for {{ $json.fields['Project Type'] }} - {{ $json.fields['Project Location'] }}",
+        "message": "=<div style=\"margin:0; padding:0; background-color:#f4f6f8; font-family:Arial,Helvetica,sans-serif; color:#1f2933;\">\n  <div style=\"max-width:680px; margin:0 auto; padding:35px 20px;\">\n\n```\n<!-- Header -->\n<div style=\"background-color:#ffffff; padding:28px 32px; border-radius:12px 12px 0 0; border-bottom:4px solid #2563eb;\">\n  <div style=\"font-size:26px; font-weight:700; color:#1f2933; letter-spacing:-0.5px;\">\n    Company \n  </div>\n  <div style=\"font-size:13px; color:#6b7280; margin-top:5px;\">\n    Your construction quote is ready\n  </div>\n</div>\n\n<!-- Main Content -->\n<div style=\"background-color:#ffffff; padding:32px;\">\n\n  <p style=\"font-size:16px; line-height:1.6; margin-top:0;\">\n    Hi {{$json.fields[\"Customer Name\"]}},\n  </p>\n\n  <p style=\"font-size:15px; line-height:1.7; color:#4b5563;\">\n    Thank you for your enquiry regarding your\n    <strong>{{$json.fields[\"Project Type\"]}}</strong>\n    in <strong>{{$json.fields[\"Project Location\"]}}</strong>.\n    We're pleased to provide you with your quote below.\n  </p>\n\n  <!-- Project Summary -->\n  <div style=\"margin-top:28px; padding:20px; background-color:#f8fafc; border:1px solid #e5e7eb; border-radius:8px;\">\n    <div style=\"font-size:12px; font-weight:700; color:#6b7280; text-transform:uppercase; letter-spacing:0.8px; margin-bottom:14px;\">\n      Project Details\n    </div>\n\n    <table style=\"width:100%; border-collapse:collapse;\">\n      <tr>\n        <td style=\"padding:7px 0; color:#6b7280; width:35%;\">Project</td>\n        <td style=\"padding:7px 0; font-weight:600;\">\n          {{$json.fields[\"Project Type\"]}}\n        </td>\n      </tr>\n\n      <tr>\n        <td style=\"padding:7px 0; color:#6b7280;\">Location</td>\n        <td style=\"padding:7px 0; font-weight:600;\">\n          {{$json.fields[\"Project Location\"]}}\n        </td>\n      </tr>\n\n      <tr>\n        <td style=\"padding:7px 0; color:#6b7280;\">Quote ID</td>\n        <td style=\"padding:7px 0; font-weight:600;\">\n          {{$json.fields[\"Quote ID\"]}}\n        </td>\n      </tr>\n    </table>\n  </div>\n\n  <!-- Scope -->\n  <div style=\"margin-top:28px;\">\n    <div style=\"font-size:12px; font-weight:700; color:#6b7280; text-transform:uppercase; letter-spacing:0.8px; margin-bottom:10px;\">\n      Scope of Work\n    </div>\n\n    <p style=\"font-size:15px; line-height:1.7; color:#4b5563; margin:0;\">\n      {{$json.fields[\"AI Scope Summary\"]}}\n    </p>\n  </div>\n\n  <!-- Quote Amount -->\n  <div style=\"margin-top:30px; padding:24px; background-color:#eff6ff; border:1px solid #bfdbfe; border-radius:10px; text-align:center;\">\n    <div style=\"font-size:12px; font-weight:700; color:#2563eb; text-transform:uppercase; letter-spacing:1px;\">\n      Total Quote\n    </div>\n\n<!-- Quote Breakdown -->\n\n<div style=\"margin-top:30px; padding:24px; background-color:#f8fafc; border:1px solid #e5e7eb; border-radius:10px;\">\n\n  <div style=\"font-size:12px; font-weight:700; color:#6b7280; text-transform:uppercase; letter-spacing:0.8px; margin-bottom:16px;\">\n    Quote Breakdown\n  </div>\n\n  <table style=\"width:100%; border-collapse:collapse; font-size:14px;\">\n\n```\n<tr>\n  <td style=\"padding:10px 0; color:#4b5563; border-bottom:1px solid #e5e7eb;\">\n    Labour\n  </td>\n  <td style=\"padding:10px 0; text-align:right; font-weight:600; border-bottom:1px solid #e5e7eb;\">\n     ${{$json.fields[\"Labour Cost\"]}}\n  </td>\n</tr>\n\n<tr>\n  <td style=\"padding:10px 0; color:#4b5563; border-bottom:1px solid #e5e7eb;\">\n    Materials\n  </td>\n  <td style=\"padding:10px 0; text-align:right; font-weight:600; border-bottom:1px solid #e5e7eb;\">\n     ${{$json.fields[\"Material Cost\"]}}\n  </td>\n</tr>\n\n<tr>\n  <td style=\"padding:10px 0; color:#4b5563; border-bottom:1px solid #e5e7eb;\">\n    Other Costs\n  </td>\n  <td style=\"padding:10px 0; text-align:right; font-weight:600; border-bottom:1px solid #e5e7eb;\">\n     ${{$json.fields[\"Other Costs\"]}}\n  </td>\n</tr>\n\n<tr>\n  <td style=\"padding:16px 0 4px; font-size:16px; font-weight:700; color:#111827;\">\n    Total Quote\n  </td>\n  <td style=\"padding:16px 0 4px; text-align:right; font-size:20px; font-weight:700; color:#111827;\">\n     ${{$json.fields[\"Total Quote\"]}}\n  </td>\n</tr>\n```\n\n  </table>\n\n  <div style=\"margin-top:14px; padding-top:14px; border-top:1px solid #e5e7eb; font-size:13px; color:#6b7280;\">\n    Quote valid for <strong>{{$json.fields[\"Quote Validity\"]}} days</strong>.\n  </div>\n\n</div>\n\n\n    <div style=\"font-size:32px; font-weight:700; color:#111827; margin-top:8px;\">\n       ${{$json.fields[\"Total Quote\"]}}\n    </div>\n\n    <div style=\"font-size:13px; color:#6b7280; margin-top:7px;\">\n      Valid for {{$json.fields[\"Quote Validity\"]}} days\n    </div>\n  </div>\n\n  <!-- Closing -->\n  <div style=\"margin-top:30px;\">\n    <p style=\"font-size:15px; line-height:1.7; color:#4b5563;\">\n      If you have any questions about the quote or would like to proceed,\n      simply reply to this email and our team will be happy to assist.\n    </p>\n\n    <p style=\"font-size:15px; line-height:1.7; margin-bottom:0;\">\n      Kind regards,<br>\n      <strong>Company name</strong>\n    </p>\n  </div>\n\n</div>\n\n<!-- Footer -->\n<div style=\"background-color:#1f2937; padding:22px 32px; border-radius:0 0 12px 12px; text-align:center;\">\n  <div style=\"font-size:14px; font-weight:600; color:#ffffff;\">\n    Company\n  </div>\n\n  <div style=\"font-size:12px; color:#9ca3af; margin-top:6px;\">\n    Construction Automation &amp; Digital Solutions\n  </div>\n</div>\n```\n\n  </div>\n</div>\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [416, -96],
+      "id": "e92d39b8-7054-4f70-9c51-bc0afbec2f76",
+      "name": "Send a message",
+      "webhookId": "bfae7580-ab56-4c58-875f-3b524f420972"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [416, 96],
+      "id": "4af79e6b-127a-49d2-8d68-a781f9161114",
+      "name": "No Operation, do nothing"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Airtable Trigger": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "770fe5c3-8f1f-45cb-bffe-b4393c64933a",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "7bb7faf08e93acc59441ecea2ef2e26ff954143c20925a5da08e6afc7457d344"
+  },
+  "nodeGroups": [],
+  "id": "z4lQvJuVNhY9KIAz",
+  "tags": []
+}

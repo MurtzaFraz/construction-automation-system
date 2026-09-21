@@ -1,0 +1,538 @@
+{
+  "name": "Construction — AI Quote System",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "authentication": "airtableTokenApi",
+        "baseId": {
+          "__rl": true,
+          "value": "appUTPOUtHikFH9Gh",
+          "mode": "id"
+        },
+        "tableId": {
+          "__rl": true,
+          "value": "tblXHHJab94cFcMQr",
+          "mode": "id"
+        },
+        "triggerField": "Status",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.airtableTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "88df9548-8c9f-43b9-b187-70e6f9d78e1f",
+      "name": "Airtable Trigger",
+      
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "27353666-4593-4b11-9b57-3eb3ee7ee8d1",
+              "leftValue": "={{ $json.fields.Status }}",
+              "rightValue": "Quote Requested",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        208,
+        0
+      ],
+      "id": "ef66511d-596f-4f84-9b5b-8c98f0585135",
+      "name": "Is Quote Requested?"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4.1-MINI"
+        },
+        "responses": {
+          "values": [
+            {
+              "content": "=You are an AI construction estimating assistant for a residential construction company.\n\nYour job is to analyze a customer lead and structure the information an estimator needs to prepare a preliminary quote.\n\nThe customer information comes from the company's CRM. Treat the CRM data as the source of truth.\n\nIMPORTANT RULES:\n\n- Do NOT invent customer information.\n- Do NOT invent project requirements.\n- Do NOT turn assumptions into customer requirements.\n- Do NOT create specific prices or costs.\n- Do NOT reject a project simply because optional details such as brands, colours, finishes or exact product selections are not yet known.\n- Only identify information as missing when its absence would materially prevent an estimator from preparing a reasonable preliminary quote.\n- A preliminary quote can contain reasonable assumptions that will later be confirmed with the customer.\n- If something is not provided, use \"Unknown\" for scalar fields or [] for list fields.\n- Return ONLY valid JSON. Do not use markdown, code fences, explanations or any text outside the JSON.\n\nReturn exactly this JSON structure:\n\n{\n  \"customerName\": \"\",\n  \"customerEmail\": \"\",\n  \"customerPhone\": \"\",\n  \"projectType\": \"\",\n  \"projectLocation\": \"\",\n  \"projectDescription\": \"\",\n  \"requestedWork\": [],\n  \"dimensions\": [],\n  \"materialsMentioned\": [],\n  \"fixturesMentioned\": [],\n  \"assumptions\": [],\n  \"missingInformation\": [],\n  \"estimatedDuration\": \"\",\n  \"scopeSummary\": \"\",\n  \"quoteReadiness\": \"\"\n}\n\nFIELD RULES:\n\n1. customerName\nExtract the customer's name from the CRM.\nIf unavailable, return \"Unknown\".\n\n2. customerEmail\nExtract the customer's email from the CRM.\nReturn the email address as a plain email address only.\nDo not use Markdown, mailto links, brackets, angle brackets or any other formatting.\nExample: person@example.com\nIf unavailable, return \"Unknown\".\n\n3. customerPhone\nExtract the customer's phone number from the CRM.\nReturn the phone number as plain text without explanatory text.\nIf unavailable, return \"Unknown\".\n\n4. projectType\nIdentify the primary type of construction project from \"Service Required\" and the project description.\n\nExamples:\n- Bathroom Renovation\n- Kitchen Renovation\n- New Build\n- Extension\n- Roofing\n- Landscaping\n- Painting\n- General Renovation\n\nDo not invent a project type that is unsupported by the lead.\n\n5. projectLocation\nUse the suburb/location provided by the CRM.\nIf unavailable, return \"Unknown\".\n\n6. projectDescription\nCreate a concise factual summary of what the customer wants.\nOnly include work explicitly stated by the customer.\n\n7. requestedWork\nList the individual work items explicitly requested by the customer.\n\n8. dimensions\nExtract all dimensions, measurements, areas, quantities or sizes explicitly provided.\nIf none are provided, return [].\n\n9. materialsMentioned\nList only materials, finishes or products explicitly mentioned by the customer.\nDo not infer materials that were not mentioned.\nIf none are provided, return [].\n\n10. fixturesMentioned\nList only fixtures, appliances or fittings explicitly mentioned by the customer.\nIf none are provided, return [].\n\n11. assumptions\nList reasonable estimating assumptions that may be necessary because the customer has not specified something.\n\nIMPORTANT:\n- Clearly distinguish assumptions from customer requirements.\n- Do not assume a particular brand, quality level, price, specification or finish unless the customer stated it.\n- If there are no meaningful assumptions, return [].\n\n12. missingInformation\nOnly include information that is genuinely required before a reasonable preliminary quote can be prepared.\n\nDo NOT list information merely because it would make the quote more precise.\n\nFor example, a bathroom renovation containing:\n- bathroom dimensions\n- demolition/removal\n- floor and wall tiling\n- walk-in shower\n- vanity\n- toilet\n- approximate start timeframe\n\ncan normally be considered sufficiently detailed for preliminary pricing.\n\nDo not mark the following as missing unless they are genuinely required for the particular project:\n- brand names\n- colours\n- exact product models\n- final finish selections\n- other optional design choices\n\nIf no material information is missing, return [].\n\n13. estimatedDuration\nProvide a reasonable preliminary duration only when the available project information supports one.\nDo not invent an exact duration.\nIf there is insufficient information, return \"Unknown\".\n\n14. scopeSummary\nProvide a concise summary of the project scope that an estimator can quickly understand.\n\n15. quoteReadiness\nReturn exactly one of:\n\n\"Ready for Pricing\"\n\nor\n\n\"Needs Information\"\n\nUse \"Ready for Pricing\" when the estimator has enough information to prepare a reasonable preliminary quote.\n\nUse \"Needs Information\" only when important information is genuinely missing and pricing would otherwise be unreliable.\n\nDo not use the customer's budget to determine quote readiness. The budget is contextual information for the estimator, not a substitute for project scope.\n\nCUSTOMER LEAD DATA:\n\nCustomer name:\n{{ $('Airtable Trigger').item.json.fields[\"Full Name\"] }}\n\nCustomer email:\n{{ $('Airtable Trigger').item.json.fields[\"Email\"] }}\n\nCustomer phone:\n{{ $('Airtable Trigger').item.json.fields[\"Phone\"] }}\n\nService required:\n{{ $('Airtable Trigger').item.json.fields[\"Service Required\"] }}\n\nLocation/Suburb:\n{{ $('Airtable Trigger').item.json.fields[\"Suburb\"] }}\n\nBudget:\n{{ $('Airtable Trigger').item.json.fields[\"Budget\"] }}\n\nProject description:\n{{ $('Airtable Trigger').item.json.fields[\"Project Description\"] }}"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.3,
+      "position": [
+        416,
+        -96
+      ],
+      "id": "46b35e86-207c-4da6-ba1f-b9a3ae3050d0",
+      "name": "Message a model",
+      
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const aiText = $json.output[0].content[0].text;\n\nconst cleanedText = aiText\n  .replace(/^```json\\s*/i, '')\n  .replace(/^`json\\s*/i, '')\n  .replace(/```$/i, '')\n  .trim();\n\nconst data = JSON.parse(cleanedText);\n\n// Extract a plain email address if AI returns Markdown formatting\nif (data.customerEmail) {\n  const emailMatch = data.customerEmail.match(\n    /[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}/i\n  );\n\n  if (emailMatch) {\n    data.customerEmail = emailMatch[0];\n  }\n}\n\nreturn {\n  json: data\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        768,
+        -96
+      ],
+      "id": "447e6fac-7f4e-46ff-9601-f8b654968f8e",
+      "name": "Parse Quote AI Data"
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "appUTPOUtHikFH9Gh",
+          "mode": "list",
+          "cachedResultName": "Construction CRM",
+          "cachedResultUrl": "https://airtable.com/appUTPOUtHikFH9Gh"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblWp1l3wUyWsfFLl",
+          "mode": "list",
+          "cachedResultName": "Construction Quote",
+          "cachedResultUrl": "https://airtable.com/appUTPOUtHikFH9Gh/tblWp1l3wUyWsfFLl"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Quote ID": "={{ \"Q-\" + $('Airtable Trigger').item.json.id }}",
+            "Customer Name": "={{ $('Airtable Trigger').item.json.fields[\"Full Name\"] }}",
+            "Customer Email": "={{ $('Airtable Trigger').item.json.fields[\"Email\"] }}",
+            "Customer Phone": "={{ $('Airtable Trigger').item.json.fields[\"Phone\"] }}",
+            "Project Type": "={{ $json.projectType }}",
+            "Project Location": "={{ $json.projectLocation }}",
+            "Project Description": "={{ $json.projectDescription }}",
+            "AI Scope Summary": "={{ $json.scopeSummary }}",
+            "Requested Work": "={{ $json.requestedWork.join(', ') }}",
+            "Dimensions": "={{ $json.dimensions.length ? $json.dimensions.join(', ') : 'Unknown' }}",
+            "Materials Mentioned": "={{ $json.materialsMentioned.length ? $json.materialsMentioned.join(', ') : 'Unknown' }}",
+            "Fixtures Mentioned": "={{ $json.fixturesMentioned.length ? $json.fixturesMentioned.join(', ') : 'Unknown' }}",
+            "AI Assumptions": "={{ $json.assumptions.length ? $json.assumptions.join(', ') : 'None' }}",
+            "Missing Information": "={{ $json.missingInformation.length ? $json.missingInformation.join(', ') : 'None' }}",
+            "Estimated Duration": "={{ $json.estimatedDuration }}",
+            "Quote Status": "={{$json.quoteReadiness}}",
+            "Created At": "={{ $now.toISO() }}",
+            "Labour Cost": 0,
+            "Material Cost": 0,
+            "Other Costs": 0,
+            "Quote Validity": 0
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Quote ID",
+              "displayName": "Quote ID",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Customer Name",
+              "displayName": "Customer Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Customer Email",
+              "displayName": "Customer Email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Customer Phone",
+              "displayName": "Customer Phone",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Project Type",
+              "displayName": "Project Type",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Project Location",
+              "displayName": "Project Location",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Project Description",
+              "displayName": "Project Description",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "AI Scope Summary",
+              "displayName": "AI Scope Summary",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Requested Work",
+              "displayName": "Requested Work",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Dimensions",
+              "displayName": "Dimensions",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Materials Mentioned",
+              "displayName": "Materials Mentioned",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Fixtures Mentioned",
+              "displayName": "Fixtures Mentioned",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "AI Assumptions",
+              "displayName": "AI Assumptions",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Missing Information",
+              "displayName": "Missing Information",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Estimated Duration",
+              "displayName": "Estimated Duration",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Labour Cost",
+              "displayName": "Labour Cost",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Material Cost",
+              "displayName": "Material Cost",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Other Costs",
+              "displayName": "Other Costs",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Total Quote",
+              "displayName": "Total Quote",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Quote Status",
+              "displayName": "Quote Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Draft",
+                  "value": "Draft"
+                },
+                {
+                  "name": "Needs Information",
+                  "value": "Needs Information"
+                },
+                {
+                  "name": "Ready for Pricing",
+                  "value": "Ready for Pricing"
+                },
+                {
+                  "name": "Ready for Approval",
+                  "value": "Ready for Approval"
+                },
+                {
+                  "name": "Approved",
+                  "value": "Approved"
+                },
+                {
+                  "name": "Sent",
+                  "value": "Sent"
+                },
+                {
+                  "name": "Accepted",
+                  "value": "Accepted"
+                },
+                {
+                  "name": "Declined",
+                  "value": "Declined"
+                },
+                {
+                  "name": "Expired",
+                  "value": "Expired"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Quote Validity",
+              "displayName": "Quote Validity",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Created At",
+              "displayName": "Created At",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Approved At",
+              "displayName": "Approved At",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Quote Sent At",
+              "displayName": "Quote Sent At",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        976,
+        -96
+      ],
+      "id": "1786c553-25b3-42b1-8624-32bffcc9fd83",
+      "name": "Create Quote Draft",
+      
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Airtable Trigger": {
+      "main": [
+        [
+          {
+            "node": "Is Quote Requested?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Quote Requested?": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Parse Quote AI Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Quote AI Data": {
+      "main": [
+        [
+          {
+            "node": "Create Quote Draft",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "6d616ac1-09de-42e7-b561-cb940bf6870f",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "7bb7faf08e93acc59441ecea2ef2e26ff954143c20925a5da08e6afc7457d344"
+  },
+  "nodeGroups": [],
+  "id": "KKkuT43BwKdX9YKS",
+  "tags": []
+}
