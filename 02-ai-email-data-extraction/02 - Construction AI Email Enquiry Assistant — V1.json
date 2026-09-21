@@ -1,0 +1,374 @@
+{
+  "name": "Construction AI Email Enquiry Assistant — V1",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "filters": {}
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.4,
+      "position": [0, 0],
+      "id": "79ab811e-a735-4045-9293-eb03122d5b42",
+      "name": "Gmail Trigger"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4.1-MINI"
+        },
+        "responses": {
+          "values": [
+            {
+              "content": "={{\n`You are an AI assistant for a construction company.\n\nAnalyse the customer enquiry below and extract the relevant information.\n\nDo not invent information. If information is missing, use \"Unknown\".\n\nReturn ONLY valid JSON. Do not include explanations, markdown, headings, or text outside the JSON.\n\nUse exactly this structure:\n\n{\n  \"customerName\": \"string\",\n  \"customerEmail\": \"string\",\n  \"customerPhone\": \"string\",\n  \"serviceRequired\": \"string\",\n  \"suburb\": \"string\",\n  \"budget\": \"string\",\n  \"urgency\": \"Low, Medium, or High\",\n  \"intent\": \"string\",\n  \"summary\": \"string\",\n  \"missingInformation\": [\"string\"]\n}\n\nCustomer email:\n\nSender: ${$json.From}\n\nSubject: ${$json.Subject}\n\nEmail content:\n${$json.snippet}`\n}}"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.3,
+      "position": [208, 0],
+      "id": "e9662de9-1302-4e3f-af76-ec9fe411ea97",
+      "name": "AI Classify Construction Enquiry"
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "appUTPOUtHikFH9Gh",
+          "mode": "list",
+          "cachedResultName": "Construction CRM",
+          "cachedResultUrl": "https://airtable.com/appUTPOUtHikFH9Gh"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblb0zlNKggYzabfr",
+          "mode": "list",
+          "cachedResultName": "AI Email Enquiries",
+          "cachedResultUrl": "https://airtable.com/appUTPOUtHikFH9Gh/tblb0zlNKggYzabfr"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Customer Name": "={{ $json.customerName }}",
+            "Email": "={{ $json.customerEmail }}",
+            "Phone": "={{ $json.customerPhone }}",
+            "Service Required": "={{ $json.serviceRequired }}",
+            "Suburb": "={{ $json.suburb }}",
+            "Budget": "={{ $json.budget }}",
+            "Urgency": "={{ $json.urgency }}",
+            "Intent": "={{ $json.intent }}",
+            "AI Summary": "={{ $json.summary }}",
+            "Missing Information": "={{ $json.missingInformation.join(', ') }}",
+            "Status": "Needs Review",
+            "Received At": "={{ $now.toISO() }}",
+            "Original Subject": "={{ $('Gmail Trigger').item.json.Subject }}",
+            "Original Email": "={{ $('Gmail Trigger').item.json.snippet }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Customer Name",
+              "displayName": "Customer Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Phone",
+              "displayName": "Phone",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Service Required",
+              "displayName": "Service Required",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Suburb",
+              "displayName": "Suburb",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Budget",
+              "displayName": "Budget",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Urgency",
+              "displayName": "Urgency",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Low",
+                  "value": "Low"
+                },
+                {
+                  "name": "Medium",
+                  "value": "Medium"
+                },
+                {
+                  "name": "High",
+                  "value": "High"
+                },
+                {
+                  "name": "Unknown",
+                  "value": "Unknown"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Intent",
+              "displayName": "Intent",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "AI Summary",
+              "displayName": "AI Summary",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Missing Information",
+              "displayName": "Missing Information",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "New",
+                  "value": "New"
+                },
+                {
+                  "name": "Needs Review",
+                  "value": "Needs Review"
+                },
+                {
+                  "name": "Contacted",
+                  "value": "Contacted"
+                },
+                {
+                  "name": "Quoted",
+                  "value": "Quoted"
+                },
+                {
+                  "name": "Closed",
+                  "value": "Closed"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Received At",
+              "displayName": "Received At",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Original Subject",
+              "displayName": "Original Subject",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Original Email",
+              "displayName": "Original Email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [768, 0],
+      "id": "2816f807-7e69-43a5-b844-cdbdc664fece",
+      "name": "Create AI Email Enquiry"
+    },
+    {
+      "parameters": {
+        "sendTo": "youremail@email.com",
+        "subject": "={{ \"New AI-Classified Enquiry — \" + $('Parse AI Enquiry Data').item.json.serviceRequired }}",
+        "message": "={{ `<!DOCTYPE html> <html> <body style=\"margin:0; padding:0; background:#f4f6f8; font-family:Arial, Helvetica, sans-serif;\">  <div style=\"max-width:700px; margin:30px auto; background:#ffffff; border-radius:10px; overflow:hidden;\">    <div style=\"padding:25px 30px; background:#1f2937; color:#ffffff;\">     <h1 style=\"margin:0; font-size:24px;\">       New Construction Enquiry     </h1>      <p style=\"margin:8px 0 0; color:#d1d5db;\">       AI has analysed and organised the enquiry.     </p>   </div>    <div style=\"padding:30px; color:#374151; line-height:1.6;\">      <div style=\"padding:16px; background:#fff7ed; border-radius:8px; margin-bottom:22px;\">       <strong>Status:</strong>       Needs Review     </div>      <h2 style=\"font-size:18px; color:#1f2937;\">       Customer Details     </h2>      <p>       <strong>Name:</strong>       ${$('Parse AI Enquiry Data').item.json.customerName}     </p>      <p>       <strong>Email:</strong>       ${$('Parse AI Enquiry Data').item.json.customerEmail}     </p>      <p>       <strong>Phone:</strong>       ${$('Parse AI Enquiry Data').item.json.customerPhone}     </p>      <h2 style=\"font-size:18px; color:#1f2937; margin-top:25px;\">       Project Details     </h2>      <p>       <strong>Service:</strong>       ${$('Parse AI Enquiry Data').item.json.serviceRequired}     </p>      <p>       <strong>Location:</strong>       ${$('Parse AI Enquiry Data').item.json.suburb}     </p>      <p>       <strong>Budget:</strong>       ${$('Parse AI Enquiry Data').item.json.budget}     </p>      <p>       <strong>Urgency:</strong>       ${$('Parse AI Enquiry Data').item.json.urgency}     </p>      <p>       <strong>Customer intent:</strong>       ${$('Parse AI Enquiry Data').item.json.intent}     </p>      <div style=\"margin-top:25px; padding:20px; background:#f3f4f6; border-radius:8px;\">        <h3 style=\"margin-top:0; color:#1f2937;\">         AI Summary       </h3>        <p style=\"margin-bottom:0;\">         ${$('Parse AI Enquiry Data').item.json.summary}       </p>      </div>      <div style=\"margin-top:20px; padding:18px; border-left:4px solid #f59e0b; background:#fffbeb;\">        <strong>Information to check:</strong>        <p style=\"margin:8px 0 0;\">         ${$('Parse AI Enquiry Data').item.json.missingInformation.join(', ')}       </p>      </div>      <p style=\"margin-top:28px;\">       Review the original customer email before preparing a quote or contacting the customer.     </p>    </div>    <div style=\"padding:16px 30px; background:#f3f4f6; color:#6b7280; font-size:12px;\">     Generated automatically by  Construction AI Automation.   </div>  </div>  </body> </html>` }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [976, 0],
+      "id": "3723e396-0b33-4d00-8847-32e9470af904",
+      "name": "Send AI Enquiry Summary",
+      "webhookId": "c3e4d159-c156-4917-b72d-e5e1bc0c7cae"
+    },
+    {
+      "parameters": {
+        "jsCode": "const aiText = $json.output[0].content[0].text;\n\nconst cleanedText = aiText\n  .replace(/```json/g, '')\n  .replace(/```/g, '')\n  .trim();\n\nconst data = JSON.parse(cleanedText);\n\n// Extract a plain email address even if AI returns:\n// [email@example.com](mailto:email@example.com)\n// or:\n// [email@example.com](mailto\\:email@example.com)\n\nif (data.customerEmail && data.customerEmail !== 'Unknown') {\n  const emailMatch = data.customerEmail.match(\n    /[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}/i\n  );\n\n  data.customerEmail = emailMatch\n    ? emailMatch[0]\n    : data.customerEmail;\n}\n\nreturn {\n  json: data\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [560, 0],
+      "id": "1f6407d1-de94-4cbe-add6-5b7dbe38f92a",
+      "name": "Parse AI Enquiry Data"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Classify Construction Enquiry",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Classify Construction Enquiry": {
+      "main": [
+        [
+          {
+            "node": "Parse AI Enquiry Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create AI Email Enquiry": {
+      "main": [
+        [
+          {
+            "node": "Send AI Enquiry Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse AI Enquiry Data": {
+      "main": [
+        [
+          {
+            "node": "Create AI Email Enquiry",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "79dee71f-4b4f-4e17-930d-26bdd2b9ebc6",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "7bb7faf08e93acc59441ecea2ef2e26ff954143c20925a5da08e6afc7457d344"
+  },
+  "nodeGroups": [],
+  "id": "WcRH0BOFXru7dSx1",
+  "tags": []
+}
