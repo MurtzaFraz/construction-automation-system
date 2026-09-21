@@ -1,0 +1,435 @@
+{
+  "name": "Construction Lead Capture & CRM",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "construction-lead",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [0, 0],
+      "id": "7873b65c-da8d-496f-9336-f2ce00d4c74c",
+      "name": "Webhook",
+      "webhookId": "c8dfa0a0-c4aa-4535-8a66-4ecaecb146bb"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "25687d63-d1f9-4fe4-ab7f-8bb9e1abb80b",
+              "name": "leadId",
+              "value": "={{ $json.leadId }}",
+              "type": "string"
+            },
+            {
+              "id": "f6eced73-e56f-4c5e-92cf-48827f896c3c",
+              "name": "fullName",
+              "value": "={{ $json.fullName }}",
+              "type": "string"
+            },
+            {
+              "id": "2f035784-3bf9-4b53-8217-b45e38726e86",
+              "name": "email",
+              "value": "={{ $json.email }}",
+              "type": "string"
+            },
+            {
+              "id": "2089d230-a947-464c-9f65-4b707c36de6d",
+              "name": "phone",
+              "value": "={{ $json.phone }}",
+              "type": "string"
+            },
+            {
+              "id": "8f10a03b-b6d8-4509-a398-e53024a69543",
+              "name": "serviceRequired",
+              "value": "={{ $json.serviceRequired }}",
+              "type": "string"
+            },
+            {
+              "id": "975754ca-8e96-4fd7-b581-e6cb93e55fda",
+              "name": "projectDescription",
+              "value": "={{ $json.projectDescription }}",
+              "type": "string"
+            },
+            {
+              "id": "fb66e77b-4904-4f43-9e75-8879929db286",
+              "name": "suburb",
+              "value": "={{ $json.suburb }}",
+              "type": "string"
+            },
+            {
+              "id": "4b4aa9e4-33d7-41c3-ad7d-144d0e812a2e",
+              "name": "budget",
+              "value": "={{ $json.budget }}",
+              "type": "string"
+            },
+            {
+              "id": "324d8d58-639a-4a55-913b-b6e31d7e0b2b",
+              "name": "preferredContact",
+              "value": "={{ $json.preferredContact }}",
+              "type": "string"
+            },
+            {
+              "id": "ece095a4-4cc1-4d0a-bd05-4072dd851ab4",
+              "name": "leadSource",
+              "value": "={{ $json.leadSource }}",
+              "type": "string"
+            },
+            {
+              "id": "5d5e1c47-5ca0-4d74-b11c-ffdb48b499fb",
+              "name": "receivedAt",
+              "value": "={{ $json.receivedAt }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [416, 0],
+      "id": "15681d31-b294-4b46-b5b0-e113457b8631",
+      "name": "Prepare Lead Data"
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "appUTPOUtHikFH9Gh",
+          "mode": "list",
+          "cachedResultName": "Construction CRM",
+          "cachedResultUrl": "https://airtable.com/appUTPOUtHikFH9Gh"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblXHHJab94cFcMQr",
+          "mode": "list",
+          "cachedResultName": "Leads",
+          "cachedResultUrl": "https://airtable.com/appUTPOUtHikFH9Gh/tblXHHJab94cFcMQr"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Lead ID": "={{ $json.leadId }}",
+            "Full Name": "={{ $json.fullName }}",
+            "Email": "={{ $json.email }}",
+            "Phone": "={{ $json.phone }}",
+            "Suburb": "={{ $json.suburb }}",
+            "Service Required": "={{ $json.serviceRequired }}",
+            "Received At": "={{ $json.receivedAt }}",
+            "Lead Source": "={{ $json.leadSource }}",
+            "Status": "New",
+            "Project Description": "={{ $json.projectDescription }}",
+            "Budget": "={{ $json.budget }}",
+            "Preferred Contact": "={{ $json.preferredContact }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Lead ID",
+              "displayName": "Lead ID",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Full Name",
+              "displayName": "Full Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Phone",
+              "displayName": "Phone",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Service Required",
+              "displayName": "Service Required",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Project Description",
+              "displayName": "Project Description",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Suburb",
+              "displayName": "Suburb",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Budget",
+              "displayName": "Budget",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Preferred Contact",
+              "displayName": "Preferred Contact",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Lead Source",
+              "displayName": "Lead Source",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "New",
+                  "value": "New"
+                },
+                {
+                  "name": "Contacted",
+                  "value": "Contacted"
+                },
+                {
+                  "name": "Quote Requested",
+                  "value": "Quote Requested"
+                },
+                {
+                  "name": "Quote Sent",
+                  "value": "Quote Sent"
+                },
+                {
+                  "name": "Won",
+                  "value": "Won"
+                },
+                {
+                  "name": "Lost",
+                  "value": "Lost"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Received At",
+              "displayName": "Received At",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Follow-up Due",
+              "displayName": "Follow-up Due",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Notes",
+              "displayName": "Notes",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [624, 0],
+      "id": "5ab50303-8dfa-4911-930a-3923d12acea0",
+      "name": "Create a record"
+    },
+    {
+      "parameters": {
+        "sendTo": "youremail@email.com",
+        "subject": "={{ \"🏗️ New Lead — \" + $('Prepare Lead Data').item.json.serviceRequired + \" — \" + $('Prepare Lead Data').item.json.fullName }}",
+        "message": "={{\n`<!DOCTYPE html>\n<html>\n<body style=\"margin:0; padding:0; background-color:#f4f6f8; font-family:Arial, Helvetica, sans-serif;\">\n\n  <div style=\"max-width:650px; margin:30px auto; background:#ffffff; border-radius:10px; overflow:hidden;\">\n\n    <div style=\"padding:25px 30px; background:#1f2937; color:#ffffff;\">\n      <h1 style=\"margin:0; font-size:24px;\">🏗️ New Construction Lead</h1>\n      <p style=\"margin:8px 0 0; color:#d1d5db;\">\n        A new enquiry has been received through your website.\n      </p>\n    </div>\n\n    <div style=\"padding:30px;\">\n\n      <h2 style=\"color:#1f2937; margin-top:0;\">\n        ${$('Prepare Lead Data').item.json.fullName}\n      </h2>\n\n      <table style=\"width:100%; border-collapse:collapse;\">\n\n        <tr>\n          <td style=\"padding:10px; border-bottom:1px solid #e5e7eb;\">\n            <strong>Email</strong>\n          </td>\n          <td style=\"padding:10px; border-bottom:1px solid #e5e7eb;\">\n            ${$('Prepare Lead Data').item.json.email}\n          </td>\n        </tr>\n\n        <tr>\n          <td style=\"padding:10px; border-bottom:1px solid #e5e7eb;\">\n            <strong>Phone</strong>\n          </td>\n          <td style=\"padding:10px; border-bottom:1px solid #e5e7eb;\">\n            ${$('Prepare Lead Data').item.json.phone}\n          </td>\n        </tr>\n\n        <tr>\n          <td style=\"padding:10px; border-bottom:1px solid #e5e7eb;\">\n            <strong>Service</strong>\n          </td>\n          <td style=\"padding:10px; border-bottom:1px solid #e5e7eb;\">\n            ${$('Prepare Lead Data').item.json.serviceRequired}\n          </td>\n        </tr>\n\n        <tr>\n          <td style=\"padding:10px; border-bottom:1px solid #e5e7eb;\">\n            <strong>Location</strong>\n          </td>\n          <td style=\"padding:10px; border-bottom:1px solid #e5e7eb;\">\n            ${$('Prepare Lead Data').item.json.suburb}\n          </td>\n        </tr>\n\n        <tr>\n          <td style=\"padding:10px; border-bottom:1px solid #e5e7eb;\">\n            <strong>Estimated Budget</strong>\n          </td>\n          <td style=\"padding:10px; border-bottom:1px solid #e5e7eb;\">\n            ${$('Prepare Lead Data').item.json.budget}\n          </td>\n        </tr>\n\n        <tr>\n          <td style=\"padding:10px;\">\n            <strong>Preferred Contact</strong>\n          </td>\n          <td style=\"padding:10px;\">\n            ${$('Prepare Lead Data').item.json.preferredContact}\n          </td>\n        </tr>\n\n      </table>\n\n      <div style=\"margin-top:25px; padding:18px; background:#f3f4f6; border-radius:7px;\">\n        <strong style=\"color:#1f2937;\">Project Details</strong>\n        <p style=\"margin-bottom:0; line-height:1.6;\">\n          ${$('Prepare Lead Data').item.json.projectDescription}\n        </p>\n      </div>\n\n      <div style=\"margin-top:25px; padding:15px; background:#fff7ed; border-radius:7px;\">\n        <strong>Lead Status: New</strong><br>\n        Please contact this lead as soon as possible.\n      </div>\n\n    </div>\n\n    <div style=\"padding:18px 30px; background:#f3f4f6; color:#6b7280; font-size:12px;\">\n      This notification was sent automatically by your lead management system.\n    </div>\n\n  </div>\n\n</body>\n</html>`\n}}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [832, 0],
+      "id": "5759e7b7-482d-4027-828c-b565a14421d3",
+      "name": "Notify Construction Company",
+      "webhookId": "df043431-db53-45c2-8852-fcfb346742c9"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Prepare Lead Data').item.json.email }}",
+        "subject": "={{ \"We've received your enquiry, \" + $('Prepare Lead Data').item.json.fullName }}",
+        "message": "={{ `<!DOCTYPE html> <html> <body style=\"margin:0; padding:0; background:#f4f6f8; font-family:Arial, Helvetica, sans-serif;\">    <div style=\"max-width:650px; margin:30px auto; background:#ffffff; border-radius:10px; overflow:hidden;\">      <div style=\"padding:28px 32px; background:#1f2937; color:#ffffff;\">       <h1 style=\"margin:0; font-size:25px;\">         We've received your enquiry       </h1>        <p style=\"margin:9px 0 0; color:#d1d5db;\">         Thank you for getting in touch.       </p>     </div>      <div style=\"padding:32px; color:#374151; line-height:1.6;\">        <p style=\"font-size:17px;\">         Hi ${$('Prepare Lead Data').item.json.fullName},       </p>        <p>         Thank you for contacting us. We've successfully received your enquiry and a member of our team will review your project details.       </p>        <p>         We'll get back to you as soon as possible.       </p>        <div style=\"margin:25px 0; padding:20px; background:#f3f4f6; border-radius:8px;\">          <h3 style=\"margin-top:0; color:#1f2937;\">           Your enquiry         </h3>          <p style=\"margin:7px 0;\">           <strong>Service:</strong>           ${$('Prepare Lead Data').item.json.serviceRequired}         </p>          <p style=\"margin:7px 0;\">           <strong>Location:</strong>           ${$('Prepare Lead Data').item.json.suburb}         </p>          <p style=\"margin:7px 0;\">           <strong>Preferred contact:</strong>           ${$('Prepare Lead Data').item.json.preferredContact}         </p>        </div>        <p>         If you need to add any information, simply reply to this email.       </p>        <p style=\"margin-top:28px;\">         Kind regards,<br>         <strong>The Construction Team</strong>       </p>      </div>      <div style=\"padding:18px 32px; background:#f3f4f6; color:#6b7280; font-size:12px;\">       This is an automated confirmation email. Please do not reply if your business does not monitor this inbox.     </div>    </div>  </body> </html>` }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [1040, 0],
+      "id": "6665695c-3d3c-4613-b8ae-ae7b9f3afbaa",
+      "name": "Customer Confirmation Email",
+      "webhookId": "fa3a0cf2-0781-4194-956b-6dec833184f5"
+    },
+    {
+      "parameters": {
+        "jsCode": "const fields = $json.body.data.fields;\n\nconst getField = (label) => {\n  const field = fields.find(f => f.label === label);\n  return field?.value ?? \"\";\n};\n\nreturn {\n  json: {\n    fullName: getField(\"Full Name\"),\n    email: getField(\"Email\"),\n    phone: getField(\"Phone Number\"),\n    serviceRequired: getField(\"Service Required\"),\n    projectDescription: getField(\"Project Description\"),\n    suburb: getField(\"Suburb\"),\n    budget: getField(\"Budget\"),\n    preferredContact: getField(\"Preferred Contact\"),\n    leadSource: getField(\"How did you found out about us?\"),\n    receivedAt: $json.body.data.createdAt,\n    leadId: $json.body.data.submissionId\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [208, 0],
+      "id": "b751da5a-0cef-4948-8bdf-1021e119c78e",
+      "name": "Format Tally Lead"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Format Tally Lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Lead Data": {
+      "main": [
+        [
+          {
+            "node": "Create a record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a record": {
+      "main": [
+        [
+          {
+            "node": "Notify Construction Company",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notify Construction Company": {
+      "main": [
+        [
+          {
+            "node": "Customer Confirmation Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Tally Lead": {
+      "main": [
+        [
+          {
+            "node": "Prepare Lead Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "569f1b9f-a885-480d-bae5-9f9bb5e7c954",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "7bb7faf08e93acc59441ecea2ef2e26ff954143c20925a5da08e6afc7457d344"
+  },
+  "nodeGroups": [],
+  "id": "CdcdXFmjfTgxyumd",
+  "tags": []
+}
