@@ -1,0 +1,1714 @@
+{
+  "name": "Employee Status Tracking - Construction",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "filters": {}
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.4,
+      "position": [0, 96],
+      "id": "29c889e6-568b-4a04-af6a-0337efa38361",
+      "name": "Gmail Trigger"
+    },
+    {
+      "parameters": {
+        "jsCode": "const subject = $json.Subject || '';\nconst parts = subject.trim().split(/\\s+/);\n\nlet action;\nlet taskId;\nlet update;\n\nif (parts[0]?.toUpperCase() === 'NEEDS' && parts[1]?.toUpperCase() === 'HELP') {\n  action = 'NEEDS HELP';\n  taskId = parts[2];\n  update = parts.slice(3).join(' ');\n} else {\n  action = parts[0]?.toUpperCase();\n  taskId = parts[1];\n  update = parts.slice(2).join(' ');\n}\n\nreturn [{\n  json: {\n    messageId: $json.id,\n    employeeEmail: $json.From,\n    action,\n    taskId,\n    update\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [224, 96],
+      "id": "93113386-8fe1-4cd2-9bff-ac0640027d59",
+      "name": "Parse Employee Response"
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appUTPOUtHikFH9Gh",
+          "mode": "list",
+          "cachedResultName": "Construction CRM",
+          "cachedResultUrl": "https://airtable.com/appUTPOUtHikFH9Gh"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblNfMzmx6XPrfeLg",
+          "mode": "list",
+          "cachedResultName": "Tasks",
+          "cachedResultUrl": "https://airtable.com/appUTPOUtHikFH9Gh/tblNfMzmx6XPrfeLg"
+        },
+        "filterByFormula": "={Task ID} = '{{$json.taskId}}'",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [448, 96],
+      "id": "a3ae0c31-923f-45db-85c2-dda39cbb30d8",
+      "name": "Find Task"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "value": "appUTPOUtHikFH9Gh",
+          "mode": "list",
+          "cachedResultName": "Construction CRM",
+          "cachedResultUrl": "https://airtable.com/appUTPOUtHikFH9Gh"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblNfMzmx6XPrfeLg",
+          "mode": "list",
+          "cachedResultName": "Tasks",
+          "cachedResultUrl": "https://airtable.com/appUTPOUtHikFH9Gh/tblNfMzmx6XPrfeLg"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Reminder Sent": false,
+            "Follow-up Sent": false,
+            "Manager Notified": false,
+            "id": "={{$json.id}}",
+            "Status": "In Progress",
+            "Started At": "={{ $now }}"
+          },
+          "matchingColumns": ["id"],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "Task ID",
+              "displayName": "Task ID",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Project ID",
+              "displayName": "Project ID",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Task Name",
+              "displayName": "Task Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Task Description",
+              "displayName": "Task Description",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Assigned Employee",
+              "displayName": "Assigned Employee",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Employee Email",
+              "displayName": "Employee Email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Scheduled Date",
+              "displayName": "Scheduled Date",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Scheduled Time",
+              "displayName": "Scheduled Time",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Pending",
+                  "value": "Pending"
+                },
+                {
+                  "name": "Reminder Sent",
+                  "value": "Reminder Sent"
+                },
+                {
+                  "name": "In Progress",
+                  "value": "In Progress"
+                },
+                {
+                  "name": "Completed",
+                  "value": "Completed"
+                },
+                {
+                  "name": "Delayed",
+                  "value": "Delayed"
+                },
+                {
+                  "name": "Needs Attention",
+                  "value": "Needs Attention"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Started At",
+              "displayName": "Started At",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Completed At",
+              "displayName": "Completed At",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Employee Update",
+              "displayName": "Employee Update",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Delay Reason",
+              "displayName": "Delay Reason",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Reminder Sent",
+              "displayName": "Reminder Sent",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Follow-up Sent",
+              "displayName": "Follow-up Sent",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Manager Notified",
+              "displayName": "Manager Notified",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [896, 0],
+      "id": "a623f82e-d82e-457a-8c34-b7007290bb66",
+      "name": "Update Task — Started"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "3c41e2c1-e8a0-4342-9a38-edd65ae17afb",
+              "leftValue": "={{$node[\"Parse Employee Response\"].json.action}}",
+              "rightValue": "STARTED",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [672, 96],
+      "id": "bf06470d-f61c-40b1-b8f9-888f281163bc",
+      "name": "What Action?"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "cec3b140-4a37-4ece-9dde-bad7ce0f45f3",
+              "leftValue": "={{$node[\"Parse Employee Response\"].json.action}}",
+              "rightValue": "COMPLETED",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [896, 192],
+      "id": "477574b0-f60b-4f72-aad4-9a1d66704def",
+      "name": "Is Completed?"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "value": "appUTPOUtHikFH9Gh",
+          "mode": "list",
+          "cachedResultName": "Construction CRM",
+          "cachedResultUrl": "https://airtable.com/appUTPOUtHikFH9Gh"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblNfMzmx6XPrfeLg",
+          "mode": "list",
+          "cachedResultName": "Tasks",
+          "cachedResultUrl": "https://airtable.com/appUTPOUtHikFH9Gh/tblNfMzmx6XPrfeLg"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Reminder Sent": false,
+            "Follow-up Sent": false,
+            "Manager Notified": false,
+            "id": "={{$node[\"Find Task\"].json.id}}",
+            "Status": "Completed",
+            "Completed At": "={{ $now }}",
+            "Employee Update": "Task completed by employee."
+          },
+          "matchingColumns": ["id"],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "Task ID",
+              "displayName": "Task ID",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Project ID",
+              "displayName": "Project ID",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Task Name",
+              "displayName": "Task Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Task Description",
+              "displayName": "Task Description",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Assigned Employee",
+              "displayName": "Assigned Employee",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Employee Email",
+              "displayName": "Employee Email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Scheduled Date",
+              "displayName": "Scheduled Date",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Scheduled Time",
+              "displayName": "Scheduled Time",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Pending",
+                  "value": "Pending"
+                },
+                {
+                  "name": "Reminder Sent",
+                  "value": "Reminder Sent"
+                },
+                {
+                  "name": "In Progress",
+                  "value": "In Progress"
+                },
+                {
+                  "name": "Completed",
+                  "value": "Completed"
+                },
+                {
+                  "name": "Delayed",
+                  "value": "Delayed"
+                },
+                {
+                  "name": "Needs Attention",
+                  "value": "Needs Attention"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Started At",
+              "displayName": "Started At",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Completed At",
+              "displayName": "Completed At",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Employee Update",
+              "displayName": "Employee Update",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Delay Reason",
+              "displayName": "Delay Reason",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Reminder Sent",
+              "displayName": "Reminder Sent",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Follow-up Sent",
+              "displayName": "Follow-up Sent",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Manager Notified",
+              "displayName": "Manager Notified",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [1120, 0],
+      "id": "eed6e80a-1aae-461c-ada1-fa31a776e74f",
+      "name": "Update Task — Completed"
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appUTPOUtHikFH9Gh",
+          "mode": "list",
+          "cachedResultName": "Construction CRM",
+          "cachedResultUrl": "https://airtable.com/appUTPOUtHikFH9Gh"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblNfMzmx6XPrfeLg",
+          "mode": "list",
+          "cachedResultName": "Tasks",
+          "cachedResultUrl": "https://airtable.com/appUTPOUtHikFH9Gh/tblNfMzmx6XPrfeLg"
+        },
+        "filterByFormula": "={Project ID} = '{{$node[\"Find Task\"].json.fields[\"Project ID\"]}}'",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [1344, 0],
+      "id": "5572be04-e585-4dd6-a044-b4594f1fd28d",
+      "name": "Find Project Tasks"
+    },
+    {
+      "parameters": {
+        "jsCode": "const tasks = $input.all();\n\nconst totalTasks = tasks.length;\n\nconst completedTasks = tasks.filter(\n  item => item.json.fields.Status === 'Completed'\n).length;\n\nconst progress = totalTasks > 0\n  ? Math.round((completedTasks / totalTasks) * 100)\n  : 0;\n\nreturn [{\n  json: {\n    projectId: tasks[0]?.json.fields[\"Project ID\"],\n    totalTasks,\n    completedTasks,\n    progress\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1568, 0],
+      "id": "3a440964-9539-413a-93ab-828e4909541f",
+      "name": "Calculate Project Progress"
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appUTPOUtHikFH9Gh",
+          "mode": "list",
+          "cachedResultName": "Construction CRM",
+          "cachedResultUrl": "https://airtable.com/appUTPOUtHikFH9Gh"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblkRLVblrPa5kd6E",
+          "mode": "list",
+          "cachedResultName": "Projects",
+          "cachedResultUrl": "https://airtable.com/appUTPOUtHikFH9Gh/tblkRLVblrPa5kd6E"
+        },
+        "filterByFormula": "={Project ID} = '{{$json.projectId}}'",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [2016, 0],
+      "id": "8eab758c-e9f8-42d5-93d7-962e65ef7eaf",
+      "name": "Find Project"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "value": "appUTPOUtHikFH9Gh",
+          "mode": "list",
+          "cachedResultName": "Construction CRM",
+          "cachedResultUrl": "https://airtable.com/appUTPOUtHikFH9Gh"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblkRLVblrPa5kd6E",
+          "mode": "list",
+          "cachedResultName": "Projects",
+          "cachedResultUrl": "https://airtable.com/appUTPOUtHikFH9Gh/tblkRLVblrPa5kd6E"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id": "={{$node[\"Find Project\"].json.id}}",
+            "Progress %": "={{$node[\"Calculate Project Progress\"].json.progress}}",
+            "Overall Status": "={{$node[\"Determine Project Status\"].json.status}}"
+          },
+          "matchingColumns": ["id"],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "Project ID",
+              "displayName": "Project ID",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Customer Name",
+              "displayName": "Customer Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Customer Email",
+              "displayName": "Customer Email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Customer Phone",
+              "displayName": "Customer Phone",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Project Address",
+              "displayName": "Project Address",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Project Description",
+              "displayName": "Project Description",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Start Date",
+              "displayName": "Start Date",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Expected Completion",
+              "displayName": "Expected Completion",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Project Manager",
+              "displayName": "Project Manager",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Overall Status",
+              "displayName": "Overall Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Scheduled",
+                  "value": "Scheduled"
+                },
+                {
+                  "name": "In Progress",
+                  "value": "In Progress"
+                },
+                {
+                  "name": "On Hold",
+                  "value": "On Hold"
+                },
+                {
+                  "name": "Completed",
+                  "value": "Completed"
+                },
+                {
+                  "name": "Delayed",
+                  "value": "Delayed"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Progress %",
+              "displayName": "Progress %",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Current Stage",
+              "displayName": "Current Stage",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [2240, 0],
+      "id": "0deb69ab-f2da-4004-aedb-20454c0da10f",
+      "name": "Update Project Progress"
+    },
+    {
+      "parameters": {
+        "jsCode": "const totalTasks = $json.totalTasks;\nconst completedTasks = $json.completedTasks;\nconst progress = $json.progress;\n\nlet status = 'In Progress';\n\nif (completedTasks === 0) {\n  status = 'Scheduled';\n}\n\nif (totalTasks > 0 && completedTasks === totalTasks) {\n  status = 'Completed';\n}\n\nreturn [{\n  json: {\n    ...$json,\n    status\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1792, 0],
+      "id": "340ed1b2-819d-4ee0-aa0d-c763d9646854",
+      "name": "Determine Project Status"
+    },
+    {
+      "parameters": {
+        "sendTo": "youremail@email.com",
+        "subject": "=Project Update — {{$node[\"Find Task\"].json.fields[\"Task Name\"]}} Completed",
+        "message": "=Hi,  A task has been completed on the following project.  PROJECT UPDATE ------------------------------  Project ID: {{$node[\"Find Task\"].json.fields[\"Project ID\"]}}  Task: {{$node[\"Find Task\"].json.fields[\"Task Name\"]}}  Task ID: {{$node[\"Find Task\"].json.fields[\"Task ID\"]}}  Assigned Employee: {{$node[\"Find Task\"].json.fields[\"Assigned Employee\"]}}  Status: Completed  Completed At: {{$node[\"Update Task — Completed\"].json.fields[\"Completed At\"]}}  PROJECT PROGRESS ------------------------------  Completed Tasks: {{$node[\"Calculate Project Progress\"].json.completedTasks}} / {{$node[\"Calculate Project Progress\"].json.totalTasks}}  Progress: {{$node[\"Calculate Project Progress\"].json.progress}}%  Project Status: {{$node[\"Determine Project Status\"].json.status}}  The project tracking system has automatically updated the project record.  Construction Operations",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [2464, 0],
+      "id": "72232450-f3c7-42a1-a122-49dbcd4819c6",
+      "name": "Gmail — Send Manager Update",
+      "webhookId": "e50ea5ba-e123-448c-9d61-90fee3b3c6ff"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "2521ff6d-cb65-40c7-82b1-1f4a2d940104",
+              "leftValue": "={{$node[\"Parse Employee Response\"].json.action}}",
+              "rightValue": "DELAYED",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [1120, 288],
+      "id": "202ed09e-36c3-4455-961c-9002a1f382bd",
+      "name": "Is Delayed?"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "value": "appUTPOUtHikFH9Gh",
+          "mode": "list",
+          "cachedResultName": "Construction CRM",
+          "cachedResultUrl": "https://airtable.com/appUTPOUtHikFH9Gh"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblNfMzmx6XPrfeLg",
+          "mode": "list",
+          "cachedResultName": "Tasks",
+          "cachedResultUrl": "https://airtable.com/appUTPOUtHikFH9Gh/tblNfMzmx6XPrfeLg"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Reminder Sent": false,
+            "Follow-up Sent": false,
+            "Manager Notified": false,
+            "id": "={{$node[\"Find Task\"].json.id}}",
+            "Status": "Delayed",
+            "Employee Update": "={{$node[\"Parse Employee Response\"].json.update}}"
+          },
+          "matchingColumns": ["id"],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "Task ID",
+              "displayName": "Task ID",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Project ID",
+              "displayName": "Project ID",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Task Name",
+              "displayName": "Task Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Task Description",
+              "displayName": "Task Description",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Assigned Employee",
+              "displayName": "Assigned Employee",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Employee Email",
+              "displayName": "Employee Email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Scheduled Date",
+              "displayName": "Scheduled Date",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Scheduled Time",
+              "displayName": "Scheduled Time",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Pending",
+                  "value": "Pending"
+                },
+                {
+                  "name": "Reminder Sent",
+                  "value": "Reminder Sent"
+                },
+                {
+                  "name": "In Progress",
+                  "value": "In Progress"
+                },
+                {
+                  "name": "Completed",
+                  "value": "Completed"
+                },
+                {
+                  "name": "Delayed",
+                  "value": "Delayed"
+                },
+                {
+                  "name": "Needs Attention",
+                  "value": "Needs Attention"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Started At",
+              "displayName": "Started At",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Completed At",
+              "displayName": "Completed At",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Employee Update",
+              "displayName": "Employee Update",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Delay Reason",
+              "displayName": "Delay Reason",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Reminder Sent",
+              "displayName": "Reminder Sent",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Follow-up Sent",
+              "displayName": "Follow-up Sent",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Manager Notified",
+              "displayName": "Manager Notified",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [1344, 192],
+      "id": "0f02e659-8f81-43e6-9896-a173880c6ba3",
+      "name": "Update record"
+    },
+    {
+      "parameters": {
+        "sendTo": "youremail@email.com",
+        "subject": "=⚠️ Task Delayed — {{$node[\"Find Task\"].json.fields[\"Task Name\"]}} | {{$node[\"Find Task\"].json.fields[\"Project ID\"]}}",
+        "message": "=<div style=\"font-family:Arial,sans-serif;max-width:600px;margin:auto;color:#333;\">\n\n  <div style=\"background:#7f1d1d;padding:24px;color:white;\">\n    <h2 style=\"margin:0;\">Construction Operations</h2>\n    <p style=\"margin:6px 0 0;color:#fecaca;\">Task Delay Alert</p>\n  </div>\n\n  <div style=\"padding:24px;background:#f9fafb;\">\n\n    <p>Hi,</p>\n\n    <p>\n      An employee has reported that the following task is delayed.\n    </p>\n\n    <div style=\"background:white;border:1px solid #fecaca;padding:18px;margin:20px 0;\">\n\n      <p style=\"margin:0 0 10px;\">\n        <strong>Project</strong><br>\n        {{$node[\"Find Task\"].json.fields[\"Project ID\"]}}\n      </p>\n\n      <p style=\"margin:0 0 10px;\">\n        <strong>Task</strong><br>\n        {{$node[\"Find Task\"].json.fields[\"Task Name\"]}}\n      </p>\n\n      <p style=\"margin:0 0 10px;\">\n        <strong>Task ID</strong><br>\n        {{$node[\"Find Task\"].json.fields[\"Task ID\"]}}\n      </p>\n\n      <p style=\"margin:0;\">\n        <strong>Assigned Employee</strong><br>\n        {{$node[\"Find Task\"].json.fields[\"Assigned Employee\"]}}\n      </p>\n\n    </div>\n\n    <div style=\"background:#fef2f2;border-left:4px solid #dc2626;padding:16px;margin-bottom:20px;\">\n      <strong>Employee Update</strong><br><br>\n      {{$node[\"Parse Employee Response\"].json.update}}\n    </div>\n\n    <p>\n      The task has been automatically marked as\n      <strong>Delayed</strong> in the project tracking system.\n    </p>\n\n    <p>\n      Please review the issue and take any necessary action.\n    </p>\n\n    <p>\n      <strong>Construction Operations</strong>\n    </p>\n\n  </div>\n\n</div>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [1568, 192],
+      "id": "db568c11-28ac-429c-88a7-8ddb62cbce3d",
+      "name": "Notify Manager — Delayed Task",
+      "webhookId": "33e19d96-aec8-4b89-a4ab-16edc937730b"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "bc9e1ce5-151c-4b0e-a6ef-ef9be62fb11a",
+              "leftValue": "={{$node[\"Parse Employee Response\"].json.action}}",
+              "rightValue": "NEEDS HELP",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [1344, 384],
+      "id": "42e560d9-91c3-4069-89fe-aa88d85fe70d",
+      "name": "Needs Help?"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "value": "appUTPOUtHikFH9Gh",
+          "mode": "list",
+          "cachedResultName": "Construction CRM",
+          "cachedResultUrl": "https://airtable.com/appUTPOUtHikFH9Gh"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblNfMzmx6XPrfeLg",
+          "mode": "list",
+          "cachedResultName": "Tasks",
+          "cachedResultUrl": "https://airtable.com/appUTPOUtHikFH9Gh/tblNfMzmx6XPrfeLg"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Reminder Sent": false,
+            "Follow-up Sent": false,
+            "Manager Notified": false,
+            "id": "={{$node[\"Find Task\"].json.id}}",
+            "Status": "Needs Attention",
+            "Employee Update": "={{$node[\"Parse Employee Response\"].json.update}}"
+          },
+          "matchingColumns": ["id"],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "Task ID",
+              "displayName": "Task ID",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Project ID",
+              "displayName": "Project ID",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Task Name",
+              "displayName": "Task Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Task Description",
+              "displayName": "Task Description",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Assigned Employee",
+              "displayName": "Assigned Employee",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Employee Email",
+              "displayName": "Employee Email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Scheduled Date",
+              "displayName": "Scheduled Date",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Scheduled Time",
+              "displayName": "Scheduled Time",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Pending",
+                  "value": "Pending"
+                },
+                {
+                  "name": "Reminder Sent",
+                  "value": "Reminder Sent"
+                },
+                {
+                  "name": "In Progress",
+                  "value": "In Progress"
+                },
+                {
+                  "name": "Completed",
+                  "value": "Completed"
+                },
+                {
+                  "name": "Delayed",
+                  "value": "Delayed"
+                },
+                {
+                  "name": "Needs Attention",
+                  "value": "Needs Attention"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Started At",
+              "displayName": "Started At",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Completed At",
+              "displayName": "Completed At",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Employee Update",
+              "displayName": "Employee Update",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Delay Reason",
+              "displayName": "Delay Reason",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Reminder Sent",
+              "displayName": "Reminder Sent",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Follow-up Sent",
+              "displayName": "Follow-up Sent",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Manager Notified",
+              "displayName": "Manager Notified",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [1568, 384],
+      "id": "323816fe-0fac-47ef-9539-092dc6b7d265",
+      "name": "Update Task — Needs Help"
+    },
+    {
+      "parameters": {
+        "sendTo": "youremail@email.com",
+        "subject": "=🚨 Assistance Required — {{$node[\"Find Task\"].json.fields[\"Task Name\"]}} | {{$node[\"Find Task\"].json.fields[\"Project ID\"]}}",
+        "message": "=<div style=\"font-family:Arial,sans-serif;max-width:600px;margin:auto;color:#333;\">\n\n  <div style=\"background:#92400e;padding:24px;color:white;\">\n    <h2 style=\"margin:0;\">Construction Operations</h2>\n    <p style=\"margin:6px 0 0;color:#fde68a;\">Employee Assistance Request</p>\n  </div>\n\n  <div style=\"padding:24px;background:#f9fafb;\">\n\n    <p>Hi,</p>\n\n    <p>\n      An employee has requested assistance with an active construction task.\n    </p>\n\n    <div style=\"background:white;border:1px solid #fde68a;padding:18px;margin:20px 0;\">\n\n      <p style=\"margin:0 0 10px;\">\n        <strong>Project</strong><br>\n        {{$node[\"Find Task\"].json.fields[\"Project ID\"]}}\n      </p>\n\n      <p style=\"margin:0 0 10px;\">\n        <strong>Task</strong><br>\n        {{$node[\"Find Task\"].json.fields[\"Task Name\"]}}\n      </p>\n\n      <p style=\"margin:0 0 10px;\">\n        <strong>Task ID</strong><br>\n        {{$node[\"Find Task\"].json.fields[\"Task ID\"]}}\n      </p>\n\n      <p style=\"margin:0;\">\n        <strong>Assigned Employee</strong><br>\n        {{$node[\"Find Task\"].json.fields[\"Assigned Employee\"]}}\n      </p>\n\n    </div>\n\n    <div style=\"background:#fffbeb;border-left:4px solid #d97706;padding:16px;margin-bottom:20px;\">\n      <strong>Employee Message</strong><br><br>\n      {{$node[\"Parse Employee Response\"].json.update}}\n    </div>\n\n    <p>\n      The task has been automatically marked as\n      <strong>Needs Attention</strong>.\n    </p>\n\n    <p>\n      Please review the request and contact the employee if assistance is required.\n    </p>\n\n    <p>\n      <strong>Construction Operations</strong>\n    </p>\n\n  </div>\n\n</div>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [1792, 384],
+      "id": "4c72d1cf-d548-414b-b3e4-25316eceeb6a",
+      "name": "Notify Manager — Assistance Required",
+      "webhookId": "47f901c3-775b-42ba-bba2-c3806f919c85"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "Parse Employee Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Employee Response": {
+      "main": [
+        [
+          {
+            "node": "Find Task",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Task": {
+      "main": [
+        [
+          {
+            "node": "What Action?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "What Action?": {
+      "main": [
+        [
+          {
+            "node": "Update Task — Started",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Is Completed?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Completed?": {
+      "main": [
+        [
+          {
+            "node": "Update Task — Completed",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Is Delayed?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Task — Completed": {
+      "main": [
+        [
+          {
+            "node": "Find Project Tasks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Project Tasks": {
+      "main": [
+        [
+          {
+            "node": "Calculate Project Progress",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculate Project Progress": {
+      "main": [
+        [
+          {
+            "node": "Determine Project Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Project": {
+      "main": [
+        [
+          {
+            "node": "Update Project Progress",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Determine Project Status": {
+      "main": [
+        [
+          {
+            "node": "Find Project",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Project Progress": {
+      "main": [
+        [
+          {
+            "node": "Gmail — Send Manager Update",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Delayed?": {
+      "main": [
+        [
+          {
+            "node": "Update record",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Needs Help?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update record": {
+      "main": [
+        [
+          {
+            "node": "Notify Manager — Delayed Task",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Needs Help?": {
+      "main": [
+        [
+          {
+            "node": "Update Task — Needs Help",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Task — Needs Help": {
+      "main": [
+        [
+          {
+            "node": "Notify Manager — Assistance Required",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "1df3e0ad-0e01-45c5-a0bf-2c9841bc0735",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "7bb7faf08e93acc59441ecea2ef2e26ff954143c20925a5da08e6afc7457d344"
+  },
+  "nodeGroups": [],
+  "id": "KjMtUgLBBW4H8xKf",
+  "tags": []
+}

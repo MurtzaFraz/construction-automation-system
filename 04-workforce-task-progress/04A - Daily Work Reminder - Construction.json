@@ -1,0 +1,409 @@
+{
+  "name": "Daily Work Reminder - Construction",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "id": "18b0278d-4aa1-4101-b4b5-af3eee784ece",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{$json.fields[\"Employee Email\"]}}",
+        "subject": "=Work Reminder — {{$json.fields[\"Task Name\"]}} | {{$json.fields[\"Project ID\"]}}",
+        "message": "=<div style=\"font-family: Arial, sans-serif; max-width: 600px; margin: auto; color: #333;\">\n\n  <div style=\"background:#1f2937; padding:24px; color:white;\">\n    <h2 style=\"margin:0;\">Construction Operations</h2>\n    <p style=\"margin:6px 0 0; color:#d1d5db;\">Work Assignment Reminder</p>\n  </div>\n\n  <div style=\"padding:24px; background:#f9fafb;\">\n\n    <p>Hi <strong>{{$json.fields[\"Assigned Employee\"]}}</strong>,</p>\n\n    <p>You have a scheduled task that requires your attention.</p>\n\n    <div style=\"background:white; border:1px solid #e5e7eb; padding:18px; margin:20px 0;\">\n\n      <p style=\"margin:0 0 10px;\">\n        <strong>Project</strong><br>\n        {{$json.fields[\"Project ID\"]}}\n      </p>\n\n      <p style=\"margin:0 0 10px;\">\n        <strong>Task</strong><br>\n        {{$json.fields[\"Task Name\"]}}\n      </p>\n\n      <p style=\"margin:0 0 10px;\">\n        <strong>Task ID</strong><br>\n        {{$json.fields[\"Task ID\"]}}\n      </p>\n\n      <p style=\"margin:0;\">\n        <strong>Scheduled</strong><br>\n        {{$json.fields[\"Scheduled Date\"]}}\n      </p>\n\n    </div>\n\n    <p><strong>When you begin the task, reply:</strong></p>\n\n    <div style=\"background:#eef2ff; padding:14px; border-radius:6px; font-family:monospace;\">\n      STARTED {{$json.fields[\"Task ID\"]}}\n    </div>\n\n    <p style=\"margin-top:20px;\">If there is an issue:</p>\n\n    <div style=\"font-family:monospace; line-height:1.8;\">\n      DELAYED {{$json.fields[\"Task ID\"]}} &lt;reason&gt;<br>\n      NEEDS HELP {{$json.fields[\"Task ID\"]}} &lt;reason&gt;\n    </div>\n\n    <p style=\"margin-top:24px;\">\n      Please keep your task status updated so the project team can track progress.\n    </p>\n\n    <p>Thank you,<br><strong>Construction Operations</strong></p>\n\n  </div>\n\n</div>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [672, 0],
+      "id": "587fd4ff-3894-44ea-895c-f5e05aead11b",
+      "name": "Employee Reminder",
+      "webhookId": "77d789f7-4b21-460a-a3b6-b7de48392d18"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "b8f3674c-8c92-46d6-a31e-ff3a9c6972a9",
+              "leftValue": "={{ $input.all().length }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [448, 0],
+      "id": "d3b70797-9d64-4ab8-b414-80131b60571c",
+      "name": "Task Found"
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appUTPOUtHikFH9Gh",
+          "mode": "list",
+          "cachedResultName": "Construction CRM",
+          "cachedResultUrl": "https://airtable.com/appUTPOUtHikFH9Gh"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblNfMzmx6XPrfeLg",
+          "mode": "list",
+          "cachedResultName": "Tasks",
+          "cachedResultUrl": "https://airtable.com/appUTPOUtHikFH9Gh/tblNfMzmx6XPrfeLg"
+        },
+        "filterByFormula": "AND(   IS_SAME({Scheduled Date}, TODAY(), 'day'),   {Status} != 'Completed',   NOT({Reminder Sent}) )",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [224, 0],
+      "id": "62888c51-40dc-44a1-9f5b-44c624429ed4",
+      "name": "Get Today's Tasks",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "value": "appUTPOUtHikFH9Gh",
+          "mode": "list",
+          "cachedResultName": "Construction CRM",
+          "cachedResultUrl": "https://airtable.com/appUTPOUtHikFH9Gh"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblNfMzmx6XPrfeLg",
+          "mode": "list",
+          "cachedResultName": "Tasks",
+          "cachedResultUrl": "https://airtable.com/appUTPOUtHikFH9Gh/tblNfMzmx6XPrfeLg"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Reminder Sent": true,
+            "Follow-up Sent": false,
+            "Manager Notified": false,
+            "Status": "Reminder Sent",
+            "Task ID": "={{ $('Get Today\\'s Tasks').item.json.fields['Task ID'] }}",
+            "Reminder Sent At": "={{ $now }}"
+          },
+          "matchingColumns": ["Task ID"],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Task ID",
+              "displayName": "Task ID",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Project ID",
+              "displayName": "Project ID",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Task Name",
+              "displayName": "Task Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Task Description",
+              "displayName": "Task Description",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Assigned Employee",
+              "displayName": "Assigned Employee",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Employee Email",
+              "displayName": "Employee Email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Scheduled Date",
+              "displayName": "Scheduled Date",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Scheduled Time",
+              "displayName": "Scheduled Time",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Pending",
+                  "value": "Pending"
+                },
+                {
+                  "name": "Reminder Sent",
+                  "value": "Reminder Sent"
+                },
+                {
+                  "name": "In Progress",
+                  "value": "In Progress"
+                },
+                {
+                  "name": "Completed",
+                  "value": "Completed"
+                },
+                {
+                  "name": "Delayed",
+                  "value": "Delayed"
+                },
+                {
+                  "name": "Needs Attention",
+                  "value": "Needs Attention"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Started At",
+              "displayName": "Started At",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Completed At",
+              "displayName": "Completed At",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Employee Update",
+              "displayName": "Employee Update",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Delay Reason",
+              "displayName": "Delay Reason",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Reminder Sent",
+              "displayName": "Reminder Sent",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Reminder Sent At",
+              "displayName": "Reminder Sent At",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Follow-up Sent",
+              "displayName": "Follow-up Sent",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Manager Notified",
+              "displayName": "Manager Notified",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [896, 0],
+      "id": "f92e861b-45f8-417f-8eee-9902b2311383",
+      "name": "Update Task — Reminder Sent"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Get Today's Tasks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Employee Reminder": {
+      "main": [
+        [
+          {
+            "node": "Update Task — Reminder Sent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Task Found": {
+      "main": [
+        [
+          {
+            "node": "Employee Reminder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Today's Tasks": {
+      "main": [
+        [
+          {
+            "node": "Task Found",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "a86028b9-79a7-46c2-8181-13e47a136986",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "7bb7faf08e93acc59441ecea2ef2e26ff954143c20925a5da08e6afc7457d344"
+  },
+  "nodeGroups": [],
+  "id": "2Na2SCxl81NwaP8x",
+  "tags": []
+}

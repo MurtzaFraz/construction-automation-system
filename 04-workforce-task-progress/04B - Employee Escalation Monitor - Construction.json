@@ -1,0 +1,429 @@
+{
+  "name": "Employee Escalation Monitor - Construction",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [0, -96],
+      "id": "6ea300ec-e4ec-488c-9953-46552258ba83",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "2047253d-003b-48ed-a866-0eb466eff717",
+              "leftValue": "={{ (Date.now() - Date.parse($json.fields[\"Follow-up Sent At\"])) / 60000 }}",
+              "rightValue": 1,
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [448, -96],
+      "id": "d7988970-1b8b-437a-8863-6e12cef2bd7c",
+      "name": "Escalation Due?"
+    },
+    {
+      "parameters": {
+        "sendTo": "youremail@email.com",
+        "subject": "=🚨 Employee Unresponsive — {{$json.fields[\"Task Name\"]}} | {{$json.fields[\"Project ID\"]}}",
+        "message": "=<div style=\"font-family:Arial,sans-serif;max-width:600px;margin:auto;color:#333;\">\n\n  <div style=\"background:#991b1b;padding:24px;color:white;\">\n    <h2 style=\"margin:0;\">Construction Operations</h2>\n    <p style=\"margin:6px 0 0;color:#fecaca;\">Management Escalation</p>\n  </div>\n\n  <div style=\"padding:24px;background:#f9fafb;\">\n\n    <p>Hi,</p>\n\n    <p>\n      A scheduled construction task requires management attention.\n      The assigned employee has not provided a STARTED confirmation\n      after receiving both a work reminder and a follow-up.\n    </p>\n\n    <div style=\"background:white;border:1px solid #fecaca;padding:18px;margin:20px 0;\">\n\n      <p style=\"margin:0 0 10px;\">\n        <strong>Project</strong><br>\n        {{$json.fields[\"Project ID\"]}}\n      </p>\n\n      <p style=\"margin:0 0 10px;\">\n        <strong>Task</strong><br>\n        {{$json.fields[\"Task Name\"]}}\n      </p>\n\n      <p style=\"margin:0 0 10px;\">\n        <strong>Task ID</strong><br>\n        {{$json.fields[\"Task ID\"]}}\n      </p>\n\n      <p style=\"margin:0 0 10px;\">\n        <strong>Assigned Employee</strong><br>\n        {{$json.fields[\"Assigned Employee\"]}}\n      </p>\n\n      <p style=\"margin:0;\">\n        <strong>Scheduled Date</strong><br>\n        {{$json.fields[\"Scheduled Date\"]}}\n      </p>\n\n    </div>\n\n    <div style=\"background:#fef2f2;border-left:4px solid #dc2626;padding:16px;margin-bottom:20px;\">\n      <strong>Current Status</strong><br><br>\n      {{$json.fields[\"Status\"]}}\n    </div>\n\n    <p>\n      The employee was sent an initial reminder followed by a\n      follow-up request, but no STARTED confirmation has been received.\n    </p>\n\n    <p>\n      <strong>Recommended action:</strong><br>\n      Contact the employee and confirm whether the task can proceed.\n    </p>\n\n    <p style=\"margin-top:24px;\">\n      <strong>Construction Operations</strong>\n    </p>\n\n  </div>\n\n</div>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [672, -96],
+      "id": "ac0b9707-919f-4deb-bd6f-7188aad67199",
+      "name": "Escalate to Manager",
+      "webhookId": "9dd974b8-3353-4051-a6a7-493f24d6a644"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "value": "appUTPOUtHikFH9Gh",
+          "mode": "list",
+          "cachedResultName": "Construction CRM",
+          "cachedResultUrl": "https://airtable.com/appUTPOUtHikFH9Gh"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblNfMzmx6XPrfeLg",
+          "mode": "list",
+          "cachedResultName": "Tasks",
+          "cachedResultUrl": "https://airtable.com/appUTPOUtHikFH9Gh/tblNfMzmx6XPrfeLg"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Reminder Sent": false,
+            "Follow-up Sent": false,
+            "Manager Notified": false,
+            "Escalation Sent": false,
+            "id": "={{ $('Find Tasks Needing Escalation').item.json.id }}"
+          },
+          "matchingColumns": ["id"],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "Task ID",
+              "displayName": "Task ID",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Project ID",
+              "displayName": "Project ID",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Task Name",
+              "displayName": "Task Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Task Description",
+              "displayName": "Task Description",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Assigned Employee",
+              "displayName": "Assigned Employee",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Employee Email",
+              "displayName": "Employee Email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Scheduled Date",
+              "displayName": "Scheduled Date",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Scheduled Time",
+              "displayName": "Scheduled Time",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Pending",
+                  "value": "Pending"
+                },
+                {
+                  "name": "Reminder Sent",
+                  "value": "Reminder Sent"
+                },
+                {
+                  "name": "In Progress",
+                  "value": "In Progress"
+                },
+                {
+                  "name": "Completed",
+                  "value": "Completed"
+                },
+                {
+                  "name": "Delayed",
+                  "value": "Delayed"
+                },
+                {
+                  "name": "Needs Attention",
+                  "value": "Needs Attention"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Started At",
+              "displayName": "Started At",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Completed At",
+              "displayName": "Completed At",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Employee Update",
+              "displayName": "Employee Update",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Delay Reason",
+              "displayName": "Delay Reason",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Reminder Sent",
+              "displayName": "Reminder Sent",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Reminder Sent At",
+              "displayName": "Reminder Sent At",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Follow-up Sent",
+              "displayName": "Follow-up Sent",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Manager Notified",
+              "displayName": "Manager Notified",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Follow-up Sent At",
+              "displayName": "Follow-up Sent At",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Escalation Sent",
+              "displayName": "Escalation Sent",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [880, -96],
+      "id": "fc0b88cc-5b3b-48eb-b3e9-f776a7851cc2",
+      "name": "Mark Escalation Sent"
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appUTPOUtHikFH9Gh",
+          "mode": "list",
+          "cachedResultName": "Construction CRM",
+          "cachedResultUrl": "https://airtable.com/appUTPOUtHikFH9Gh"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblNfMzmx6XPrfeLg",
+          "mode": "list",
+          "cachedResultName": "Tasks",
+          "cachedResultUrl": "https://airtable.com/appUTPOUtHikFH9Gh/tblNfMzmx6XPrfeLg"
+        },
+        "filterByFormula": "AND(   IS_SAME({Scheduled Date}, TODAY(), 'day'),   {Status} = 'Reminder Sent',   {Follow-Up Sent} = TRUE(),   NOT({Escalation Sent}) )",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [224, -96],
+      "id": "debbd84c-b275-4339-8ef8-7bd27967f24f",
+      "name": "Find Tasks Needing Escalation"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Find Tasks Needing Escalation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Escalation Due?": {
+      "main": [
+        [
+          {
+            "node": "Escalate to Manager",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Escalate to Manager": {
+      "main": [
+        [
+          {
+            "node": "Mark Escalation Sent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Tasks Needing Escalation": {
+      "main": [
+        [
+          {
+            "node": "Escalation Due?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "0dae74d7-2478-4d19-a7ca-f3645570deb5",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "7bb7faf08e93acc59441ecea2ef2e26ff954143c20925a5da08e6afc7457d344"
+  },
+  "nodeGroups": [],
+  "id": "VREAh4Ok5KL12xUm",
+  "tags": []
+}
